@@ -61,11 +61,11 @@ def jarvis_patrick(
     - The metric  used to compute the the k-nearest neighberhood of all points is the Euclidean metric
     """
     
-    k = params_dict['k']
-    smin = params_dict['smin']
+    k = int(params_dict['k'])
+    smin = int(params_dict['smin'])
     
     # Step 1: Compute all pair-wise distances
-    distances = cdist(data, data)
+    distances = cdist(data, data, metric='euclidean')
     
     # Step 2: Find k-nearest neighbors (excluding self)
     neighbors = np.argsort(distances, axis=1)[:, 1:k+1]
@@ -138,14 +138,11 @@ def jarvis_patrick_clustering():
     # Create a dictionary for each parameter pair ('sigma' and 'xi').
     k_values = np.linspace(3, 8, 5)
     smin_values = np.linspace(4, 10, 5)
-    params_dict = {
-        'k': k_values,
-        'smin': smin_values
-    }
     groups = {}
     for i in range(5):
+        params_dict = {'k': k_values[i], 'smin': smin_values[i]}
         computed_labels, SSE, ARI = jarvis_patrick(data[1000*i:1000*(i+1)], labels[1000*i:1000*(i+1)],params_dict)
-        groups[i] = {"k": params_dict['k'][i], "smin": params_dict['smin'][i], "ARI": ARI, "SSE": SSE}
+        groups[i] = {"k": params_dict['k'], "smin": params_dict['smin'], "ARI": ARI, "SSE": SSE}
 
     # data for data group 0: data[0:10000]. For example,
     # groups[0] = {"sigma": 0.1, "xi": 0.1, "ARI": 0.1, "SSE": 0.1}
