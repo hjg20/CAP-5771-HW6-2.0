@@ -203,7 +203,6 @@ def spectral_clustering():
     plt.ylabel('Eigenvalue')
     plt.title('Eigenvalues from Smallest to Largest')
     plt.grid(True)
-    plt.show()
     answers["eigenvalue plot"] = plot_eig
 
     data_set_0 = [data[1000*0:1000*(0+1)], labels[1000*0:1000*(0+1)]]
