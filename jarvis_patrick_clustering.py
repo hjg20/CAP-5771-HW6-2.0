@@ -143,6 +143,8 @@ def jarvis_patrick_clustering():
         params_dict = {'k': k_values[i], 'smin': smin_values[i]}
         computed_labels, SSE, ARI = jarvis_patrick(data[1000*i:1000*(i+1)], labels[1000*i:1000*(i+1)],params_dict)
         groups[i] = {"k": params_dict['k'], "smin": params_dict['smin'], "ARI": ARI, "SSE": SSE}
+        if i == 0:
+            answers["1st group, SSE"] = SSE
 
     # data for data group 0: data[0:10000]. For example,
     # groups[0] = {"sigma": 0.1, "xi": 0.1, "ARI": 0.1, "SSE": 0.1}
@@ -153,7 +155,7 @@ def jarvis_patrick_clustering():
 
     # groups is the dictionary above
     answers["cluster parameters"] = groups
-    answers["1st group, SSE"] = {}
+    # answers["1st group, SSE"] = {}
 
     # Create two scatter plots using `matplotlib.pyplot`` where the two
     # axes are the parameters used, with # \sigma on the horizontal axis
@@ -164,27 +166,55 @@ def jarvis_patrick_clustering():
     # Do the same for the cluster with the smallest value of SSE.
     # All plots must have x and y labels, a title, and the grid overlay.
 
+    largest_ARI_index = max(groups, key=lambda i: groups[i]["ARI"])
+    data_largest_ARI = data[1000*largest_ARI_index:1000*(largest_ARI_index+1)]
+    labels_largest_ARI = labels[1000*largest_ARI_index:1000*(largest_ARI_index+1)]
+
+    smallest_SSE_index = min(groups, key=lambda i: groups[i]["SSE"])
+    data_smallest_SSE = data[1000*smallest_SSE_index:1000*(smallest_SSE_index+1)]
+    labels_smallest_SSE = labels[1000*smallest_SSE_index:1000*(smallest_SSE_index+1)]
+
     # Plot is the return value of a call to plt.scatter()
-    plot_ARI = plt.scatter([1,2,3], [4,5,6])
-    plot_SSE = plt.scatter([1,2,3], [4,5,6])
-    answers["cluster scatterplot with largest ARI"] = plot_ARI
-    answers["cluster scatterplot with smallest SSE"] = plot_SSE
+    plt.figure()
+    scatter_ARI = plt.scatter(data_largest_ARI[:, 0], data_largest_ARI[:, 1], c=labels_largest_ARI, cmap='viridis', label='Data Points')
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.title(f'Scatter Plot with Largest ARI (k = {groups[largest_ARI_index]["k"]}, smin = {groups[largest_ARI_index]["smin"]})')
+    plt.colorbar(label='Cluster Label')
+    plt.grid(True)
+    answers["cluster scatterplot with largest ARI"] = scatter_ARI
+    plt.savefig('Jarvis_ARI.png')
+    plt.close()
+
+    plt.figure()
+    scatter_SSE = plt.scatter(data_smallest_SSE[:, 0], data_smallest_SSE[:, 1], c=labels_smallest_SSE, cmap='viridis', label='Data Points')
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.title(f'Scatter Plot with Smallest SSE (k = {groups[smallest_SSE_index]["k"]}, smin = {groups[smallest_SSE_index]["smin"]})')
+    plt.colorbar(label='Cluster Label')
+    plt.grid(True)
+    answers["cluster scatterplot with smallest SSE"] = scatter_SSE
+    plt.savefig('Jarvis_SSE.png')
+    plt.close()
 
     # Pick the parameters that give the largest value of ARI, and apply these
     # parameters to datasets 1, 2, 3, and 4. Compute the ARI for each dataset.
     # Calculate mean and standard deviation of ARI for all five datasets.
 
-    # A single float
-    answers["mean_ARIs"] = 0.
+    for i in range(5):
+        data_set = [data[1000*i:1000*(i+1)], labels[1000*i:1000*(i+1)]]
+        largest_ARI_parameters = {'smin': smin_values[largest_ARI_index], 'k': k_values[largest_ARI_index]}
+        ARIs = []
+        SSEs = []
+        _, SSE, ARI = jarvis_patrick(data_set[0], data_set[1], largest_ARI_parameters)
+        ARIs.append(ARI)
+        SSEs.append(SSE)
 
     # A single float
-    answers["std_ARIs"] = 0.
-
-    # A single float
-    answers["mean_SSEs"] = 0.
-
-    # A single float
-    answers["std_SSEs"] = 0.
+    answers["mean_ARIs"] = np.mean(ARIs)
+    answers["std_ARIs"] = np.std(ARIs)
+    answers["mean_SSEs"] = np.mean(SSEs)
+    answers["std_SSEs"] = np.std(SSEs)
 
     return answers
 

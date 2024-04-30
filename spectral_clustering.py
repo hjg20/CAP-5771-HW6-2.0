@@ -123,6 +123,10 @@ def spectral_clustering():
     # Minimmum of 10 pairs of parameters ('sigma' and 'xi').
 
     # Create a dictionary for each parameter pair ('sigma' and 'xi').
+
+    # For the spectral method, perform your calculations with 5 clusters.
+    # In this cas,e there is only a single parameter, σ.
+
     sigma_values = np.linspace(0.1, 10, 5)
     groups = {}
     eigenvalues_group = []
@@ -134,9 +138,6 @@ def spectral_clustering():
 
         if i == 0:  # Save the SSE of the first group for later access
             answers["1st group, SSE"] = SSE
-
-    # For the spectral method, perform your calculations with 5 clusters.
-    # In this cas,e there is only a single parameter, σ.
 
     # data for data group 0: data[0:10000]. For example,
     # groups[0] = {"sigma": 0.1, "ARI": 0.1, "SSE": 0.1}
@@ -162,9 +163,9 @@ def spectral_clustering():
     # Do the same for the cluster with the smallest value of SSE.
     # All plots must have x and y labels, a title, and the grid overlay.
 
-    sigmas = [group["sigma"] for group in groups.values()]
-    ARI_values = [group["ARI"] for group in groups.values()]
-    SSE_values = [group["SSE"] for group in groups.values()]
+    # sigmas = [group["sigma"] for group in groups.values()]
+    # ARI_values = [group["ARI"] for group in groups.values()]
+    # SSE_values = [group["SSE"] for group in groups.values()]
     eigenvalues = list(eigenvalues_group)
 
     largest_ARI_index = max(groups, key=lambda i: groups[i]["ARI"])
@@ -184,6 +185,8 @@ def spectral_clustering():
     plt.colorbar(label='Cluster Label')
     plt.grid(True)
     answers["cluster scatterplot with largest ARI"] = scatter_ARI
+    plt.savefig('Spectral_ARI.png')
+    plt.close()
 
     plt.figure()
     scatter_SSE = plt.scatter(data_smallest_SSE[:, 0], data_smallest_SSE[:, 1], c=labels_smallest_SSE, cmap='viridis', label='Data Points')
@@ -193,6 +196,8 @@ def spectral_clustering():
     plt.colorbar(label='Cluster Label')
     plt.grid(True)
     answers["cluster scatterplot with smallest SSE"] = scatter_SSE
+    plt.savefig('Spectral_SSE.png')
+    plt.close()
 
     # Plot of the eigenvalues (smallest to largest) as a line plot.
     # Use the plt.plot() function. Make sure to include a title, axis labels, and a grid.
@@ -204,26 +209,21 @@ def spectral_clustering():
     plt.title('Eigenvalues from Smallest to Largest')
     plt.grid(True)
     answers["eigenvalue plot"] = plot_eig
-
-    data_set_0 = [data[1000*0:1000*(0+1)], labels[1000*0:1000*(0+1)]]
-    data_set_1 = [data[1000*0:1000*(1+1)], labels[1000*0:1000*(1+1)]]
-    data_set_2 = [data[1000*0:1000*(2+1)], labels[1000*0:1000*(2+1)]]
-    data_set_3 = [data[1000*0:1000*(3+1)], labels[1000*0:1000*(3+1)]]
-    data_set_4 = [data[1000*0:1000*(4+1)], labels[1000*0:1000*(4+1)]]
-
-    data_sets = [data_set_0, data_set_1, data_set_2, data_set_3, data_set_4]
-    largest_ARI_parameters = {'sigma': sigma_values[largest_ARI_index], 'k': 5}
-    ARIs = []
-    SSEs = []
-    for data, labels in data_sets:
-        computed_labels, SSE, ARI, eigenvalues = spectral(data, labels, largest_ARI_parameters)
-        ARIs.append(ARI)
-        SSEs.append(SSE)
-
+    plt.savefig('Spectral_eig.png')
+    plt.close()
 
     # Pick the parameters that give the largest value of ARI, and apply these
     # parameters to datasets 1, 2, 3, and 4. Compute the ARI for each dataset.
     # Calculate mean and standard deviation of ARI for all five datasets.
+
+    for i in range(5):
+        data_set = [data[1000*i:1000*(i+1)], labels[1000*i:1000*(i+1)]]
+        largest_ARI_parameters = {'sigma': sigma_values[largest_ARI_index], 'k': 5}
+        ARIs = []
+        SSEs = []
+        _, SSE, ARI, _ = spectral(data_set[0], data_set[1], largest_ARI_parameters)
+        ARIs.append(ARI)
+        SSEs.append(SSE)
 
     # A single float
     answers["mean_ARIs"] = np.mean(ARIs)

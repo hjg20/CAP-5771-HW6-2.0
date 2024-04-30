@@ -2,7 +2,6 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy.typing import NDArray
-from sklearn.metrics import confusion_matrix
 
 # ----------------------------------------------------------------------
 
@@ -310,7 +309,17 @@ def gaussian_mixture():
         # print("means: ", means)
         # print("weights: ", weights)
         # match the labels
-        confusion_mat = confusion_matrix(label_samples, predicted_labels)
+        #confusion_mat = confusion_matrix(label_samples, predicted_labels)
+
+        labels = np.unique(np.concatenate((label_samples, predicted_labels)))
+
+        confusion_mat = np.zeros((len(labels), len(labels)), dtype=int)
+
+        for i in range(len(labels)):
+            for j in range(len(labels)):
+                confusion_mat[i, j] = np.sum((label_samples == labels[i]) & (predicted_labels == labels[j]))
+
+        
         # answers["confusion_matrix"] = confusion_mat
 
         ARI = adjusted_rand_index(label_samples, predicted_labels)
@@ -356,7 +365,7 @@ def gaussian_mixture():
     plt.ylabel("Log Likelihood")
     plt.grid(True)
     answers["plot_log_likelihood"] = plot_likelihood
-    plt.savefig("plot_log_likelihood.pdf")
+    plt.savefig("plot_log_likelihood.png")
 
     # --------------------------------------------------------------
     # 10 trials of 10,000 points each
